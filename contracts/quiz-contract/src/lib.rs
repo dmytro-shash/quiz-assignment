@@ -3,12 +3,12 @@ use near_sdk::near_bindgen;
 
 #[near_bindgen]
 #[derive(Default, BorshDeserialize, BorshSerialize)]
-pub struct Contract {
+pub struct QuizContract {
     // SETUP CONTRACT STATE
 }
 
 #[near_bindgen]
-impl Contract {
+impl QuizContract {
     // ADD CONTRACT METHODS HERE
 }
 
