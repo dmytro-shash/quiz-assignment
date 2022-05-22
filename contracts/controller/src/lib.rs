@@ -13,9 +13,9 @@ use near_sdk::{env, log, AccountId, Balance};
 use near_sdk::{ext_contract, Gas};
 use near_sdk::{near_bindgen, BorshStorageKey};
 
-type QuizId = u64;
-type QuestionId = u16;
-type QuestionOptionId = u16;
+pub type QuizId = u64;
+pub type QuestionId = u16;
+pub type QuestionOptionId = u16;
 
 #[near_bindgen]
 #[derive(BorshSerialize, BorshDeserialize)]

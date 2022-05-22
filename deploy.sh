@@ -1,15 +1,20 @@
 # delete account to redeploy
 near delete controller.dmytro-quiz.testnet dmytro-quiz.testnet
 near delete qtoken.dmytro-quiz.testnet dmytro-quiz.testnet
+near delete qcontract.dmytro-quiz.testnet dmytro-quiz.testnet
 
 # create corresponding accounts
 near create-account qtoken.dmytro-quiz.testnet --masterAccount dmytro-quiz.testnet --initialBalance 10
 near create-account controller.dmytro-quiz.testnet --masterAccount dmytro-quiz.testnet --initialBalance 10
+near create-account qcontract.dmytro-quiz.testnet --masterAccount dmytro-quiz.testnet --initialBalance 10
 
 # deploy
 near deploy qtoken.dmytro-quiz.testnet --wasmFile ./contracts/target/wasm32-unknown-unknown/release/qtoken.wasm --initFunction 'new_default_meta' --initArgs '{"owner_id": "dmytro-quiz.testnet", "name": "Quiz Token", "symbol": "QUIZ", "total_supply": "100000000000"}'
 
 near deploy controller.dmytro-quiz.testnet --wasmFile ./contracts/target/wasm32-unknown-unknown/release/controller.wasm --initFunction 'new_contract' --initArgs '{}'
+
+near deploy qcontract.dmytro-quiz.testnet --wasmFile ./contracts/target/wasm32-unknown-unknown/release/quiz_contract.wasm --initFunction 'new_contract' --initArgs '{}'
+
 
 # see qtoken metadata
 near view qtoken.dmytro-quiz.testnet ft_metadata '{}'
@@ -34,3 +39,7 @@ near view controller.dmytro-quiz.testnet get_quiz_by_id '{"quiz_id": 2}' --accou
 
 # set correct answers
 near call controller.dmytro-quiz.testnet set_correct_answers '{"quiz_id": 1, "correct_answer": ["option 1-2", "option 2-1", "option 3-3"]}' --account_id dmyttro.testnet
+
+# to answer the quiz
+near call qcontract.dmytro-quiz.testnet answer_quiz '{"quiz_id": 1, "answers": ["option 1-2", "option 2-1", "option 3-3"]}' --account_id dmyttro.testnet
+

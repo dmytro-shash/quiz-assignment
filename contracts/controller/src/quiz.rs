@@ -2,16 +2,17 @@ use crate::{
     Controller, QuestionByQuiz, QuestionId, QuestionOptionByQuiz, QuestionOptionId, QuizId,
     QUIZ_TOKEN_RATE,
 };
-use near_sdk::base64::encode_config_slice;
+
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, AccountId, Balance};
-use near_sdk::{log, BorshStorageKey};
+
+use near_sdk::BorshStorageKey;
+use near_sdk::{env, AccountId, PromiseOrValue};
 use near_sdk::{near_bindgen, require};
 use std::borrow::Borrow;
 
 pub const DECIMAL: u128 = 10u128.pow(24);
-pub type qBalance = u128;
+pub type Qbalance = u128;
 
 #[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
 pub struct Quiz {
@@ -21,7 +22,7 @@ pub struct Quiz {
     // the account that created quiz and so set up the reward
     owner_id: AccountId,
     total_questions: u16,
-    funded_amount: Option<qBalance>,
+    funded_amount: Option<Qbalance>,
     correct_answers: Vec<String>,
 }
 
@@ -46,10 +47,10 @@ impl Controller {
         questions: Vec<String>,
         all_question_options: Vec<Vec<String>>,
     ) -> QuizId {
-        let deposit: qBalance = env::attached_deposit() * QUIZ_TOKEN_RATE / DECIMAL;
+        let deposit: Qbalance = env::attached_deposit() * QUIZ_TOKEN_RATE / DECIMAL;
         let owner_id = env::predecessor_account_id();
 
-        let mut quiz_id = self.quizzes.len() + 1;
+        let quiz_id = self.quizzes.len() + 1;
 
         for (question_id_index, all_question_option) in all_question_options.iter().enumerate() {
             for (question_option_index, question_option) in all_question_option.iter().enumerate() {
@@ -141,27 +142,21 @@ impl Controller {
             "Can be set up by owner only"
         );
 
-        // // iterating throw all the combination of answers to ensure that correct answers is in question options
-        // let mut is_answers_absent_in_options: bool = true;
-        //
-        // for answer in correct_answer.clone() {
-        //     for i in 1..quiz.total_questions {
-        //         for j in 1..quiz.total_questions {
-        //             is_answers_absent_in_options &= self
-        //                 .question_options
-        //                 .get(&QuestionOptionByQuiz {
-        //                     quiz_id,
-        //                     question_id: i as QuestionId,
-        //                     question_option_id: j as QuestionId,
-        //                 })
-        //                 .filter(|option| *option != answer)
-        //                 .is_some()
-        //         }
-        //     }
-        // }
-
         for answers in correct_answer {
             quiz.correct_answers.push(answers);
         }
+    }
+
+    pub fn answer_quiz(self, quiz_id: QuizId, answers: Vec<String>) -> PromiseOrValue<u8> {
+        require!(self.quizzes.get(&quiz_id).is_some());
+        let quiz = self.quizzes.get(&quiz_id).unwrap();
+
+        let mut score: u8 = 0;
+
+        if quiz.correct_answers == answers {
+            score += answers.len() as u8;
+        };
+
+        PromiseOrValue::Value(score)
     }
 }

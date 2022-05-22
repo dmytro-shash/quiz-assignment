@@ -9,4 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-near-sdk = "4.0.0-pre.4"
+near-sdk = "4.0.0-pre.8"
+borsh = "0.9.3"
+near-contract-standards = "4.0.0-pre.8"
+serde = "1.0.136"
